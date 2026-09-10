@@ -1,18 +1,29 @@
 import { Router } from "express";
+
 import {
-  getActivities,
-  getActivityById,
-  createActivity,
-  updateActivity,
-  deleteActivity,
-} from "../controllers/activity.controller";
+  getPosts,
+  getPost,
+  createPostController,
+  updatePostController,
+  deletePostController,
+} from "../controllers/posts.controller";
+
+import { authMiddleware } from "../middleware/auth.middleware";
 
 const router = Router();
 
-router.get("/", getActivities);
-router.get("/:id", getActivityById);
-router.post("/", createActivity);
-router.patch("/:id", updateActivity);
-router.delete("/:id", deleteActivity);
+// GET
+router.get("/", authMiddleware, getPosts);
+
+router.get("/:id", authMiddleware, getPost);
+
+// POST
+router.post("/", authMiddleware, createPostController);
+
+// PATCH
+router.patch("/:id", authMiddleware, updatePostController);
+
+// DELETE
+router.delete("/:id", authMiddleware, deletePostController);
 
 export default router;
