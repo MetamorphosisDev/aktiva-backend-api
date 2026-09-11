@@ -127,6 +127,7 @@ export const updatePostController = async (
     });
   }
 };
+
 // DELETE BY ID
 export const deletePostController = async (
   req: Request,
@@ -134,17 +135,25 @@ export const deletePostController = async (
 ) => {
   try {
     const id = Number(req.params.id);
+    const userId = req.user!.id;
 
-    await deletePost(id);
+    const result = await deletePost(id, userId);
 
-    res.status(200).json({
+    if (result[0].affectedRows === 0) {
+      return res.status(403).json({
+        success: false,
+        message: "Kamu tidak memiliki akses untuk menghapus post ini",
+      });
+    }
+
+    return res.status(200).json({
       success: true,
       message: "Post berhasil dihapus",
     });
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Gagal menghapus post",
     });
@@ -159,7 +168,7 @@ export const deleteAllPostsController = async (
   try {
     await deleteAllPosts();
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Semua post berhasil dihapus",
     });
@@ -168,7 +177,7 @@ export const deleteAllPostsController = async (
     console.error("CODE:", error?.code);
     console.error("SQL MESSAGE:", error?.sqlMessage);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Gagal menghapus semua post",
     });

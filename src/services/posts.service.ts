@@ -33,6 +33,9 @@ export const createPost = async (data: CreatePost) => {
     .values(data);
 };
 
+
+// NOTE: DELETE AND UPDATE hanya bisa diedit sesuai userId
+
 // UPDATE || PUT
 export const updatePost = async (
   id: number,
@@ -51,10 +54,18 @@ export const updatePost = async (
 };
 
 // DELETE || DELETE
-export const deletePost = async (id: number) => {
+export const deletePost = async (
+  id: number,
+  userId: number
+) => {
   return await db
     .delete(postsTable)
-    .where(eq(postsTable.id, id));
+    .where(
+      and(
+        eq(postsTable.id, id),
+        eq(postsTable.userId, userId)
+      )
+    );
 };
 
 // DELETE ALL || DELETE
