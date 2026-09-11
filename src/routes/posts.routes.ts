@@ -9,18 +9,18 @@ import {
 } from "../controllers/posts.controller";
 
 import { authMiddleware } from "../middleware/auth.middleware";
-
 const router = Router();
 
-// GET
+// GET ALL
 router.get("/", authMiddleware, getPosts);
 
+// GET BY ID
 router.get("/:id", authMiddleware, getPost);
 
-// POST
+// CREATE
 router.post("/", authMiddleware, createPostController);
 
-// PATCH
+// UPDATE
 router.patch("/:id", authMiddleware, updatePostController);
 
 // DELETE

@@ -7,7 +7,7 @@ import {
   updatePost,
   deletePost,
 } from "../services/posts.service";
-import { createPostSchema, updatePostSchema } from "../validations/activity.validation";
+import { createPostSchema, updatePostSchema } from "../validations/post.validation";
 
 // GET ALL
 export const getPosts = async (

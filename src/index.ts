@@ -1,5 +1,7 @@
 import express from "express";
-import activityRoutes from "./routes/activity.routes";
+
+import postsRoutes from "./routes/posts.routes";
+import authRoutes from "./routes/auth.routes"
 
 const app = express();
 
@@ -9,13 +11,14 @@ const PORT = 3001;
 app.use(express.json());
 
 // Routes
-app.use("/api/kegiatan", activityRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/posts", postsRoutes);
 
 // Testing
 app.get("/", (_req, res) => {
   res.json({
     success: true,
-    message: "Sistem Manajemen Kegiatan Sekolah - API",
+    message: "AKTIVA Backend API",
   });
 });
 
