@@ -8,9 +8,10 @@ import { RegisterData } from "../types/auth.type";
 export const registerUser = async (data: RegisterData) => {
   const hashedPassword = await bcrypt.hash(data.password, 10);
   return await db.insert(usersTable).values({
-    ...data,
+    name: data.name,
     email: data.email.toLowerCase().trim(),
     password: hashedPassword,
+    phoneNumber: data.phoneNumber,
   });
 };
 

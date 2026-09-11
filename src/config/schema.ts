@@ -3,47 +3,127 @@ import {
   mysqlEnum,
   int,
   varchar,
-  timestamp,
   text,
+  timestamp,
+  primaryKey,
+  unique,
 } from "drizzle-orm/mysql-core";
 
-export const POST_STATUS = [
-  "draft",
-  "published",
-] as const;
+export const POST_STATUS = ["draft", "published"] as const;
 
-// 5.1 User
+// USERS
 export const usersTable = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
-  nama: varchar("nama", { length: 100, }).notNull(),
-  email: varchar("email", { length: 100, }).notNull().unique(),
-  password: varchar("password", { length: 255, }).notNull(),
-  nomorTelepon: varchar("nomor_telepon", { length: 20, }),
+  name: varchar("name", { length: 100 }).notNull(),
+  email: varchar("email", { length: 150 }).notNull().unique(),
+  password: varchar("password", { length: 255 }).notNull(),
+  phoneNumber: varchar("phone_number", { length: 20 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
 });
 
-// 5.2 Posts
-export const postsTable = mysqlTable("posts", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("user_id").notNull().references(() => usersTable.id),
-  kategoriId: int("kategori_id").notNull().references(() => categoriesTable.id),
-  slug: varchar("slug", { length: 200 }).notNull().unique(),
-  judulArtikel: varchar("judul_artikel", { length: 200 }).notNull(),
-  isiArtikel: text("isi_artikel").notNull(),
-  status: mysqlEnum("status", POST_STATUS).notNull().default("draft"),
-  gambarSampul: varchar("gambar_sampul", { length: 500, }),
-  listGambar: text("list_gambar"),
-  sumberInformasi: varchar("sumber_informasi", { length: 255, }),
-  ringkasanArtikel: text("ringkasan_artikel"),
-  lokasi: varchar("lokasi", { length: 200, }),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-// 5.3 Kategori
+// CATEGORIES
 export const categoriesTable = mysqlTable("categories", {
   id: int("id").autoincrement().primaryKey(),
-  slug: varchar("slug", { length: 100, }).notNull().unique(),
-  namaKategori: varchar("nama_kategori", { length: 100, }).notNull(),
-  deskripsiKategori: text("deskripsi_kategori"),
+  slug: varchar("slug", { length: 100 }).notNull().unique(),
+  categoryName: varchar("category_name", { length: 100, }).notNull(),
+  categoryDescription: text("category_description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
 });
+
+
+// POSTS
+export const postsTable = mysqlTable("posts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull().references(() => usersTable.id, {
+    onDelete: "cascade",
+  }),
+  categoryId: int("category_id").notNull().references(() => categoriesTable.id, {
+    onDelete: "cascade",
+  }),
+  slug: varchar("slug", { length: 200 }).notNull().unique(),
+  title: varchar("title", { length: 200 }).notNull(),
+  content: text("content").notNull(),
+  summary: text("summary"),
+  coverImage: varchar("cover_image", {
+    length: 500,
+  }),
+
+  images: text("images"),
+  source: varchar("source", {
+    length: 255,
+  }),
+  location: varchar("location", {
+    length: 200,
+  }),
+  status: mysqlEnum("status", POST_STATUS).notNull().default("draft"),
+  viewCount: int("view_count").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
+});
+
+// COMMENTS
+export const commentsTable = mysqlTable("comments", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull().references(() => usersTable.id, {
+    onDelete: "cascade",
+  }),
+  postId: int("post_id").notNull().references(() => postsTable.id, {
+    onDelete: "cascade",
+  }),
+  comment: text("comment").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
+});
+
+// BOOKMARKS
+export const bookmarksTable = mysqlTable("bookmarks",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("user_id").notNull().references(() => usersTable.id, {
+      onDelete: "cascade",
+    }),
+    postId: int("post_id").notNull().references(() => postsTable.id, {
+      onDelete: "cascade",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    uniqueUserPost: unique().on(
+      table.userId,
+      table.postId
+    ),
+  })
+);
+
+
+// TAGS
+export const tagsTable = mysqlTable("tags", {
+  id: int("id").autoincrement().primaryKey(),
+  tagName: varchar("tag_name", {
+    length: 50,
+  }).notNull(),
+  slug: varchar("slug", {
+    length: 100,
+  }).notNull().unique(),
+  tagDescription: text("tag_description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
+});
+
+// POST TAGS
+export const postTagsTable = mysqlTable("post_tags", {
+  postId: int("post_id").notNull().references(() => postsTable.id, {
+    onDelete: "cascade",
+  }),
+  tagId: int("tag_id").notNull().references(() => tagsTable.id, {
+    onDelete: "cascade",
+  }),
+},
+  (table) => ({
+    pk: primaryKey({
+      columns: [table.postId, table.tagId],
+    }),
+  })
+);
