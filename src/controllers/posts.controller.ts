@@ -6,6 +6,7 @@ import {
   createPost,
   updatePost,
   deletePost,
+  deleteAllPosts
 } from "../services/posts.service";
 import { createPostSchema, updatePostSchema } from "../validations/post.validation";
 
@@ -68,7 +69,10 @@ export const createPostController = async (
   res: Response
 ) => {
   try {
-    const data = createPostSchema.parse(req.body);
+    const data = createPostSchema.parse({
+      ...req.body,
+      userId: req.user!.id,
+    });
 
     await createPost(data);
 
@@ -93,10 +97,22 @@ export const updatePostController = async (
 ) => {
   try {
     const id = Number(req.params.id);
+    const userId = req.user!.id;
 
     const data = updatePostSchema.parse(req.body);
 
-    await updatePost(id, data);
+    const result = await updatePost(
+      id,
+      userId,
+      data
+    );
+
+    if (result[0].affectedRows === 0) {
+      return res.status(403).json({
+        success: false,
+        message: "Kamu tidak memiliki akses untuk mengubah post ini",
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -111,7 +127,6 @@ export const updatePostController = async (
     });
   }
 };
-
 // DELETE BY ID
 export const deletePostController = async (
   req: Request,
@@ -132,6 +147,30 @@ export const deletePostController = async (
     res.status(500).json({
       success: false,
       message: "Gagal menghapus post",
+    });
+  }
+};
+
+// DELETE ALL POST
+export const deleteAllPostsController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    await deleteAllPosts();
+
+    res.status(200).json({
+      success: true,
+      message: "Semua post berhasil dihapus",
+    });
+  } catch (error: any) {
+    console.error("DELETE ALL ERROR:", error);
+    console.error("CODE:", error?.code);
+    console.error("SQL MESSAGE:", error?.sqlMessage);
+
+    res.status(500).json({
+      success: false,
+      message: "Gagal menghapus semua post",
     });
   }
 };

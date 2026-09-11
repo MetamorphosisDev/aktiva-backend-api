@@ -2,17 +2,19 @@ import { z } from "zod";
 
 export const createPostSchema = z.object({
   userId: z.number().int().positive(),
-  kategoriId: z.number().int().positive(),
-  slug: z.string().min(3).max(200),
-  judulArtikel: z.string().min(3, "Judul minimal 3 karakter").max(200),
-  isiArtikel: z.string().min(10, "Isi artikel minimal 10 karakter"),
-  status: z.enum(["draft", "published"]).default("draft"),
-  gambarSampul: z.string().max(500).optional(),
-  listGambar: z.string().optional(),
-  sumberInformasi: z.string().max(255).optional(),
-  ringkasanArtikel: z.string().optional(),
-  lokasi: z.string().max(200).optional(),
+  categoryId: z.number().int().positive(),
+  slug: z.string().min(1).max(200),
+  title: z.string().min(1).max(200),
+  content: z.string().min(1),
+  summary: z.string().optional(),
+  coverImage: z.string().optional(),
+  images: z.string().optional(),
+  source: z.string().optional(),
+  location: z.string().optional(),
+  status: z.enum(["draft", "published"]),
 });
-
-export const updatePostSchema =
-  createPostSchema.partial();
+export const updatePostSchema = createPostSchema
+  .omit({
+    userId: true,
+  })
+  .partial();

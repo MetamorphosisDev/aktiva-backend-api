@@ -8,6 +8,13 @@
       "when": 1788830401700,
       "tag": "0000_parched_mandroid",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1789146446488,
+      "tag": "0001_bitter_captain_universe",
+      "breakpoints": true
     }
   ]
 }

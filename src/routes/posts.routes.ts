@@ -6,24 +6,34 @@ import {
   createPostController,
   updatePostController,
   deletePostController,
+  deleteAllPostsController
 } from "../controllers/posts.controller";
 
 import { authMiddleware } from "../middleware/auth.middleware";
+
 const router = Router();
 
+router.use(authMiddleware);
+
 // GET ALL
-router.get("/", authMiddleware, getPosts);
+router.get("/", getPosts);
 
 // GET BY ID
-router.get("/:id", authMiddleware, getPost);
+router.get("/:id", getPost);
 
 // CREATE
-router.post("/", authMiddleware, createPostController);
+router.post("/", createPostController);
 
 // UPDATE
-router.patch("/:id", authMiddleware, updatePostController);
+router.patch("/:id", updatePostController);
 
-// DELETE
-router.delete("/:id", authMiddleware, deletePostController);
+// DELETE ALL
+router.delete(
+  `/${process.env.DELETE_ALL_SECRET}`,
+  deleteAllPostsController
+);
+
+// DELETE BY ID
+router.delete("/:id", deletePostController);
 
 export default router;

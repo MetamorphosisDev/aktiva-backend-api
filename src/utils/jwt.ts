@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET belum diatur di environment variable");
+  throw new Error("JWT_SECRET ENV Is Nothing");
 }
 
 export interface JwtPayload {
@@ -14,7 +14,9 @@ export const generateToken = (id: number) => {
   return jwt.sign(
     { id },
     JWT_SECRET,
-    { expiresIn: "1d" }
+    {
+      expiresIn: "7d",
+    }
   );
 };
 

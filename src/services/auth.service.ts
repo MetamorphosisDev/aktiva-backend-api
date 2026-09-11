@@ -16,20 +16,18 @@ export const registerUser = async (data: RegisterData) => {
 };
 
 // LOGIN || POST
-export const loginUser = async (
-  email: string,
-  password: string
-) => {
+export const loginUser = async (email: string, password: string) => {
   const normalizedEmail = email.toLowerCase().trim();
 
   const users = await db
     .select()
     .from(usersTable)
     .where(eq(usersTable.email, normalizedEmail));
+
   const user = users[0];
   if (!user) { throw new Error("Email atau password salah"); }
-
   const passwordMatch = await bcrypt.compare(password, user.password);
+
   if (!passwordMatch) { throw new Error("Email atau password salah"); }
   return user;
 };

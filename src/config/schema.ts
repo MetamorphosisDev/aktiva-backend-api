@@ -113,17 +113,20 @@ export const tagsTable = mysqlTable("tags", {
 });
 
 // POST TAGS
-export const postTagsTable = mysqlTable("post_tags", {
-  postId: int("post_id").notNull().references(() => postsTable.id, {
-    onDelete: "cascade",
-  }),
-  tagId: int("tag_id").notNull().references(() => tagsTable.id, {
-    onDelete: "cascade",
-  }),
-},
-  (table) => ({
-    pk: primaryKey({
+export const postTagsTable = mysqlTable(
+  "post_tags",
+  {
+    postId: int("post_id")
+      .notNull()
+      .references(() => postsTable.id, { onDelete: "cascade" }),
+
+    tagId: int("tag_id")
+      .notNull()
+      .references(() => tagsTable.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    primaryKey({
       columns: [table.postId, table.tagId],
     }),
-  })
+  ]
 );

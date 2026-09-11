@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 import { db } from "../config/db";
 import { postsTable } from "../config/schema";
@@ -36,12 +36,18 @@ export const createPost = async (data: CreatePost) => {
 // UPDATE || PUT
 export const updatePost = async (
   id: number,
+  userId: number,
   data: UpdatePost
 ) => {
   return await db
     .update(postsTable)
     .set(data)
-    .where(eq(postsTable.id, id));
+    .where(
+      and(
+        eq(postsTable.id, id),
+        eq(postsTable.userId, userId)
+      )
+    );
 };
 
 // DELETE || DELETE

@@ -7,32 +7,21 @@ export const authMiddleware = (
   next: NextFunction
 ) => {
   try {
-    const authHeader = req.headers.authorization;
+    const token = req.headers.authorization?.split(" ")[1];
 
-    if (!authHeader) {
+    if (!token) {
       return res.status(401).json({
         success: false,
         message: "Token tidak ditemukan",
       });
     }
 
-    const [type, token] = authHeader.split(" ");
-
-    if (type !== "Bearer" || !token) {
-      return res.status(401).json({
-        success: false,
-        message: "Format token tidak valid",
-      });
-    }
-
-    // VERIFY TOKEN
     const decoded = verifyToken(token);
 
-    // Simpan data user dari JWT
     req.user = decoded;
 
     next();
-  } catch (error) {
+  } catch {
     return res.status(401).json({
       success: false,
       message: "Token tidak valid atau sudah expired",
