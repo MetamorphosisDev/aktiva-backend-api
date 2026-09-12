@@ -1,7 +1,7 @@
 import multer from "multer";
 
-const upload = multer({
-  dest: "uploads/",
-});
+const storage = multer.memoryStorage();
 
-export default upload;
+export const uploadSingleImage = multer({
+  storage,
+}).single("coverImage");

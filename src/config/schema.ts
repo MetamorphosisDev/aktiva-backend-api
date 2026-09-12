@@ -34,7 +34,6 @@ export const usersTable = mysqlTable("users", {
     .notNull(),
 });
 
-
 // CATEGORIES
 export const categoriesTable = mysqlTable("categories", {
   id: int("id").autoincrement().primaryKey(),

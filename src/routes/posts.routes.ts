@@ -1,5 +1,4 @@
 import { Router } from "express";
-import upload from "../middleware/upload.middleware";
 
 import {
   getPosts,
@@ -11,6 +10,7 @@ import {
 } from "../controllers/posts.controller";
 
 import { authMiddleware } from "../middleware/auth.middleware";
+import { uploadSingleImage } from "../middleware/upload.middleware";
 
 const router = Router();
 
@@ -23,10 +23,18 @@ router.get("/", getPosts);
 router.get("/:id", getPost);
 
 // CREATE
-router.post("/", upload.single("coverImage"), createPostController);
+router.post(
+  "/",
+  uploadSingleImage,
+  createPostController
+);
 
 // UPDATE
-router.patch("/:id", upload.single("coverImage"), updatePostController);
+router.patch(
+  "/:id",
+  uploadSingleImage,
+  updatePostController
+);
 
 // DELETE ALL
 router.delete(

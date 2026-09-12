@@ -6,10 +6,15 @@ import {
   createPost,
   updatePost,
   deletePost,
-  deleteAllPosts
+  deleteAllPosts,
 } from "../services/posts.service";
-import { createPostSchema, updatePostSchema } from "../validations/post.validation";
-import { uploadImage } from "../services/upload.service";
+
+import {
+  createPostSchema,
+  updatePostSchema,
+} from "../validations/post.validation";
+
+import { uploadToCloudinary } from "../services/upload.service";
 
 // GET ALL
 export const getPosts = async (
@@ -70,10 +75,22 @@ export const createPostController = async (
   res: Response
 ) => {
   try {
+    console.log("1. Request masuk");
+
     let coverImage: string | undefined;
 
     if (req.file) {
-      coverImage = await uploadImage(req.file.path);
+      console.log("2. Mulai upload Cloudinary");
+
+      const uploadResult = await uploadToCloudinary(
+        req.file.buffer
+      );
+
+      coverImage = uploadResult.secure_url;
+
+      console.log("3. Upload Cloudinary selesai");
+      console.log("Cloudinary URL:", coverImage);
+      console.log("Cloudinary Public ID:", uploadResult.public_id);
     }
 
     const data = createPostSchema.parse({
@@ -82,22 +99,29 @@ export const createPostController = async (
       coverImage,
     });
 
+    console.log("4. Schema selesai");
+
     await createPost(data);
 
-    res.status(201).json({
+    console.log("5. Database selesai");
+
+    return res.status(201).json({
       success: true,
       message: "Post berhasil dibuat",
     });
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+    console.error("=== CREATE POST ERROR ===");
+    console.dir(error, { depth: null });
 
-    res.status(400).json({
+    return res.status(500).json({
       success: false,
-      message: "Data post tidak valid",
+      message: error?.message || "Upload gagal",
+      error: error?.error || error,
     });
   }
 };
 
+// PATCH
 // PATCH
 export const updatePostController = async (
   req: Request,
@@ -107,7 +131,25 @@ export const updatePostController = async (
     const id = Number(req.params.id);
     const userId = req.user!.id;
 
-    const data = updatePostSchema.parse(req.body);
+    let coverImage: string | undefined;
+
+    if (req.file) {
+      console.log("Mulai upload Cloudinary untuk update");
+
+      const uploadResult = await uploadToCloudinary(
+        req.file.buffer
+      );
+
+      coverImage = uploadResult.secure_url;
+
+      console.log("Upload Cloudinary selesai");
+      console.log("Cloudinary URL:", coverImage);
+    }
+
+    const data = updatePostSchema.parse({
+      ...req.body,
+      ...(coverImage && { coverImage }),
+    });
 
     const result = await updatePost(
       id,
@@ -122,16 +164,17 @@ export const updatePostController = async (
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Post berhasil diubah",
     });
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+    console.error("=== UPDATE POST ERROR ===");
+    console.dir(error, { depth: null });
 
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
-      message: "Gagal mengubah post",
+      message: error?.message || "Gagal mengubah post",
     });
   }
 };
