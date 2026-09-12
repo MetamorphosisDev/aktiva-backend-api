@@ -4,8 +4,8 @@ import {
   getCategories,
   getCategory,
   createCategoryController,
-  updateCategoryController,
   deleteCategoryController,
+  updateCategoryController
 } from "../controllers/categories.controller";
 
 import { authMiddleware } from "../middleware/auth.middleware";
