@@ -1,12 +1,34 @@
-import { db } from "../config/db";
-import { bookmarksTable } from "../config/schema";
 import { eq, and } from "drizzle-orm";
+
+import { db } from "../config/db";
+
+import {
+  bookmarksTable,
+  postsTable,
+  categoriesTable,
+} from "../config/schema";
 
 // GET ALL BOOKMARKS BY USER
 export const getUserBookmarks = async (userId: number) => {
   return await db
-    .select()
+    .select({
+      bookmarkId: bookmarksTable.id,
+      postId: postsTable.id,
+      title: postsTable.title,
+      summary: postsTable.summary,
+      coverImage: postsTable.coverImage,
+      category: categoriesTable.categoryName,
+      createdAt: bookmarksTable.createdAt,
+    })
     .from(bookmarksTable)
+    .leftJoin(
+      postsTable,
+      eq(bookmarksTable.postId, postsTable.id)
+    )
+    .leftJoin(
+      categoriesTable,
+      eq(postsTable.categoryId, categoriesTable.id)
+    )
     .where(eq(bookmarksTable.userId, userId));
 };
 

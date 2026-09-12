@@ -1,7 +1,12 @@
 import { eq, and } from "drizzle-orm";
 
 import { db } from "../config/db";
-import { postsTable } from "../config/schema";
+
+import {
+  postsTable,
+  usersTable,
+  categoriesTable,
+} from "../config/schema";
 
 import {
   Post,
@@ -9,18 +14,72 @@ import {
   UpdatePost,
 } from "../types/posts.type";
 
-// GET ALL || GET
+// GET ALL
 export const getAllPosts = async () => {
   return await db
-    .select()
-    .from(postsTable);
+    .select({
+      id: postsTable.id,
+      title: postsTable.title,
+      content: postsTable.content,
+      summary: postsTable.summary,
+      coverImage: postsTable.coverImage,
+      images: postsTable.images,
+      source: postsTable.source,
+      location: postsTable.location,
+      status: postsTable.status,
+      viewCount: postsTable.viewCount,
+      createdAt: postsTable.createdAt,
+      updatedAt: postsTable.updatedAt,
+
+      userId: postsTable.userId,
+      author: usersTable.name,
+
+      categoryId: postsTable.categoryId,
+      category: categoriesTable.categoryName,
+    })
+    .from(postsTable)
+    .leftJoin(
+      usersTable,
+      eq(postsTable.userId, usersTable.id)
+    )
+    .leftJoin(
+      categoriesTable,
+      eq(postsTable.categoryId, categoriesTable.id)
+    );
 };
 
-// GET BY ID || GET
+// GET BY ID
 export const getPostById = async (id: number) => {
   const post = await db
-    .select()
+    .select({
+      id: postsTable.id,
+      title: postsTable.title,
+      content: postsTable.content,
+      summary: postsTable.summary,
+      coverImage: postsTable.coverImage,
+      images: postsTable.images,
+      source: postsTable.source,
+      location: postsTable.location,
+      status: postsTable.status,
+      viewCount: postsTable.viewCount,
+      createdAt: postsTable.createdAt,
+      updatedAt: postsTable.updatedAt,
+
+      userId: postsTable.userId,
+      author: usersTable.name,
+
+      categoryId: postsTable.categoryId,
+      category: categoriesTable.categoryName,
+    })
     .from(postsTable)
+    .leftJoin(
+      usersTable,
+      eq(postsTable.userId, usersTable.id)
+    )
+    .leftJoin(
+      categoriesTable,
+      eq(postsTable.categoryId, categoriesTable.id)
+    )
     .where(eq(postsTable.id, id));
 
   return post[0];
