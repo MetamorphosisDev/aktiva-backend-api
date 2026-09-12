@@ -86,7 +86,7 @@ export const createPostController = async (
 
     if (req.file) {
       console.log("Mulai upload Cloudinary");
-
+      console.log(req.file);
       const uploaded = await uploadToCloudinary(
         req.file.buffer
       );

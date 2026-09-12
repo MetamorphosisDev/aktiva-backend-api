@@ -8,23 +8,22 @@ export const uploadToCloudinary = (
   public_id: string;
 }> => {
   return new Promise((resolve, reject) => {
-    const uploadStream =
-      cloudinary.uploader.upload_stream(
-        {
-          folder: "posts",
-          resource_type: "image",
-        },
-        (error, result) => {
-          if (error || !result) {
-            return reject(error);
-          }
-
-          resolve({
-            secure_url: result.secure_url,
-            public_id: result.public_id,
-          });
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "posts",
+        resource_type: "image",
+      },
+      (error, result) => {
+        if (error || !result) {
+          return reject(error);
         }
-      );
+
+        resolve({
+          secure_url: result.secure_url,
+          public_id: result.public_id,
+        });
+      }
+    );
 
     uploadStream.end(fileBuffer);
   });
