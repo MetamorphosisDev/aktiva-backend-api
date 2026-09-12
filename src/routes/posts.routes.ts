@@ -1,4 +1,5 @@
 import { Router } from "express";
+import upload from "../middleware/upload.middleware";
 
 import {
   getPosts,
@@ -22,10 +23,10 @@ router.get("/", getPosts);
 router.get("/:id", getPost);
 
 // CREATE
-router.post("/", createPostController);
+router.post("/", upload.single("coverImage"), createPostController);
 
 // UPDATE
-router.patch("/:id", updatePostController);
+router.patch("/:id", upload.single("coverImage"), updatePostController);
 
 // DELETE ALL
 router.delete(

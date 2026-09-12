@@ -9,6 +9,7 @@ import {
   deleteAllPosts
 } from "../services/posts.service";
 import { createPostSchema, updatePostSchema } from "../validations/post.validation";
+import { uploadImage } from "../services/upload.service";
 
 // GET ALL
 export const getPosts = async (
@@ -69,9 +70,16 @@ export const createPostController = async (
   res: Response
 ) => {
   try {
+    let coverImage: string | undefined;
+
+    if (req.file) {
+      coverImage = await uploadImage(req.file.path);
+    }
+
     const data = createPostSchema.parse({
       ...req.body,
       userId: req.user!.id,
+      coverImage,
     });
 
     await createPost(data);

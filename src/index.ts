@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.routes";
 import categoriesRoutes from "./routes/categories.route";
 import bookmarksRoutes from "./routes/bookmarks.routes";
 
+
 const app = express();
 
 const PORT = 3000;
