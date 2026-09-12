@@ -10,7 +10,7 @@ import {
 } from "../controllers/posts.controller";
 
 import { authMiddleware } from "../middleware/auth.middleware";
-import { uploadSingleImage } from "../middleware/upload.middleware";
+import { uploadThumbnail } from "../middleware/upload.middleware";
 
 const router = Router();
 
@@ -25,14 +25,14 @@ router.get("/:id", getPost);
 // CREATE
 router.post(
   "/",
-  uploadSingleImage,
+  uploadThumbnail,
   createPostController
 );
 
 // UPDATE
 router.patch(
   "/:id",
-  uploadSingleImage,
+  uploadThumbnail,
   updatePostController
 );
 

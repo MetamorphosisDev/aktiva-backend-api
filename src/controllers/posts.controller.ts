@@ -14,7 +14,9 @@ import {
   updatePostSchema,
 } from "../validations/post.validation";
 
-import { uploadToCloudinary } from "../services/upload.service";
+import {
+  uploadToCloudinary,
+} from "../services/cloudinary.service";
 
 // GET ALL
 export const getPosts = async (
@@ -24,14 +26,14 @@ export const getPosts = async (
   try {
     const posts = await getAllPosts();
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: posts,
     });
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Gagal mengambil data posts",
     });
@@ -55,14 +57,14 @@ export const getPost = async (
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: post,
     });
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Gagal mengambil post",
     });
@@ -75,35 +77,31 @@ export const createPostController = async (
   res: Response
 ) => {
   try {
-    console.log("1. Request masuk");
+    const data = createPostSchema.parse({
+      ...req.body,
+      userId: req.user!.id,
+    });
 
     let coverImage: string | undefined;
 
     if (req.file) {
-      console.log("2. Mulai upload Cloudinary");
+      console.log("Mulai upload Cloudinary");
 
-      const uploadResult = await uploadToCloudinary(
+      const uploaded = await uploadToCloudinary(
         req.file.buffer
       );
 
-      coverImage = uploadResult.secure_url;
+      coverImage = uploaded.secure_url;
 
-      console.log("3. Upload Cloudinary selesai");
+      console.log("Upload Cloudinary selesai");
       console.log("Cloudinary URL:", coverImage);
-      console.log("Cloudinary Public ID:", uploadResult.public_id);
+      console.log("Cloudinary Public ID:", uploaded.public_id);
     }
 
-    const data = createPostSchema.parse({
-      ...req.body,
-      userId: req.user!.id,
-      coverImage,
+    await createPost({
+      ...data,
+      ...(coverImage && { coverImage }),
     });
-
-    console.log("4. Schema selesai");
-
-    await createPost(data);
-
-    console.log("5. Database selesai");
 
     return res.status(201).json({
       success: true,
@@ -115,13 +113,11 @@ export const createPostController = async (
 
     return res.status(500).json({
       success: false,
-      message: error?.message || "Upload gagal",
-      error: error?.error || error,
+      message: error?.message || "Gagal membuat post",
     });
   }
 };
 
-// PATCH
 // PATCH
 export const updatePostController = async (
   req: Request,
@@ -136,14 +132,15 @@ export const updatePostController = async (
     if (req.file) {
       console.log("Mulai upload Cloudinary untuk update");
 
-      const uploadResult = await uploadToCloudinary(
+      const uploaded = await uploadToCloudinary(
         req.file.buffer
       );
 
-      coverImage = uploadResult.secure_url;
+      coverImage = uploaded.secure_url;
 
       console.log("Upload Cloudinary selesai");
       console.log("Cloudinary URL:", coverImage);
+      console.log("Cloudinary Public ID:", uploaded.public_id);
     }
 
     const data = updatePostSchema.parse({
@@ -160,7 +157,8 @@ export const updatePostController = async (
     if (result[0].affectedRows === 0) {
       return res.status(403).json({
         success: false,
-        message: "Kamu tidak memiliki akses untuk mengubah post ini",
+        message:
+          "Kamu tidak memiliki akses untuk mengubah post ini",
       });
     }
 
@@ -188,12 +186,16 @@ export const deletePostController = async (
     const id = Number(req.params.id);
     const userId = req.user!.id;
 
-    const result = await deletePost(id, userId);
+    const result = await deletePost(
+      id,
+      userId
+    );
 
     if (result[0].affectedRows === 0) {
       return res.status(403).json({
         success: false,
-        message: "Kamu tidak memiliki akses untuk menghapus post ini",
+        message:
+          "Kamu tidak memiliki akses untuk menghapus post ini",
       });
     }
 
@@ -211,9 +213,9 @@ export const deletePostController = async (
   }
 };
 
-// DELETE ALL POST
+// DELETE ALL
 export const deleteAllPostsController = async (
-  req: Request,
+  _req: Request,
   res: Response
 ) => {
   try {
