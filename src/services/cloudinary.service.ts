@@ -1,6 +1,6 @@
 import cloudinary from "../config/cloudinary";
 
-// Upload gambar ke Cloudinary
+// Upload picture
 export const uploadToCloudinary = (
   fileBuffer: Buffer
 ): Promise<{

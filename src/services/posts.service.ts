@@ -6,6 +6,7 @@ import {
   postsTable,
   usersTable,
   categoriesTable,
+  bookmarksTable,
 } from "../config/schema";
 
 import {
@@ -117,6 +118,12 @@ export const deletePost = async (
   id: number,
   userId: number
 ) => {
+  // Hapus bookmark terlebih dahulu
+  await db
+    .delete(bookmarksTable)
+    .where(eq(bookmarksTable.postId, id));
+
+  // Baru hapus post
   return await db
     .delete(postsTable)
     .where(

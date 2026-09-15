@@ -29,7 +29,12 @@ export const getUserBookmarks = async (userId: number) => {
       categoriesTable,
       eq(postsTable.categoryId, categoriesTable.id)
     )
-    .where(eq(bookmarksTable.userId, userId));
+    .where(
+      and(
+        eq(bookmarksTable.userId, userId),
+        eq(postsTable.status, "published")
+      )
+    );
 };
 
 // GET BOOKMARK BY POST
